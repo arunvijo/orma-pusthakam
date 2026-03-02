@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Caveat:wght@400;500;600;700&family=Shadows+Into+Light&family=Kalam:wght@300;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@layer base {
+  :root {
+    --background: 38 35% 95%;
+    --foreground: 25 30% 15%;
+
+    --card: 40 30% 92%;
+    --card-foreground: 25 30% 15%;
+
+    --popover: 38 35% 95%;
+    --popover-foreground: 25 30% 15%;
+
+    --primary: 25 60% 38%;
+    --primary-foreground: 40 30% 96%;
+
+    --secondary: 32 25% 85%;
+    --secondary-foreground: 25 30% 20%;
+
+    --muted: 35 20% 88%;
+    --muted-foreground: 25 15% 45%;
+
+    --accent: 18 70% 50%;
+    --accent-foreground: 40 30% 96%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 20% 82%;
+    --input: 30 20% 82%;
+    --ring: 25 60% 38%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 38 30% 93%;
+    --sidebar-foreground: 25 30% 15%;
+    --sidebar-primary: 25 60% 38%;
+    --sidebar-primary-foreground: 40 30% 96%;
+    --sidebar-accent: 32 25% 85%;
+    --sidebar-accent-foreground: 25 30% 20%;
+    --sidebar-border: 30 20% 82%;
+    --sidebar-ring: 25 60% 38%;
+
+    /* Custom tokens */
+    --paper: 42 40% 94%;
+    --paper-aged: 38 30% 88%;
+    --ink-blue: 220 70% 35%;
+    --ink-black: 0 0% 12%;
+    --ink-red: 0 72% 42%;
+    --tape: 50 80% 70%;
+    --pin-red: 0 70% 50%;
+    --shadow-warm: 0 0% 0% / 0.08;
+  }
+
+  .dark {
+    --background: 25 20% 10%;
+    --foreground: 38 30% 90%;
+    --card: 25 18% 14%;
+    --card-foreground: 38 30% 90%;
+    --popover: 25 18% 14%;
+    --popover-foreground: 38 30% 90%;
+    --primary: 32 55% 55%;
+    --primary-foreground: 25 20% 10%;
+    --secondary: 25 15% 20%;
+    --secondary-foreground: 38 30% 90%;
+    --muted: 25 12% 18%;
+    --muted-foreground: 30 15% 55%;
+    --accent: 18 65% 55%;
+    --accent-foreground: 25 20% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 25 12% 22%;
+    --input: 25 12% 22%;
+    --ring: 32 55% 55%;
+    --sidebar-background: 25 18% 12%;
+    --sidebar-foreground: 38 30% 90%;
+    --sidebar-primary: 32 55% 55%;
+    --sidebar-primary-foreground: 25 20% 10%;
+    --sidebar-accent: 25 15% 20%;
+    --sidebar-accent-foreground: 38 30% 90%;
+    --sidebar-border: 25 12% 22%;
+    --sidebar-ring: 32 55% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-body {
+    font-family: 'Lora', serif;
+  }
+
+  .font-caveat {
+    font-family: 'Caveat', cursive;
+  }
+
+  .font-shadows {
+    font-family: 'Shadows Into Light', cursive;
+  }
+
+  .font-kalam {
+    font-family: 'Kalam', cursive;
+  }
+
+  .paper-texture {
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, hsl(var(--paper)) 0%, transparent 70%),
+      radial-gradient(ellipse at 80% 50%, hsl(var(--paper-aged)) 0%, transparent 70%),
+      linear-gradient(180deg, hsl(var(--paper)) 0%, hsl(var(--paper-aged)) 100%);
+  }
+
+  .torn-edge {
+    clip-path: polygon(
+      0% 0%, 3% 1%, 6% 0%, 9% 1.5%, 12% 0%, 15% 0.5%, 18% 0%, 21% 1%, 24% 0%, 27% 1.5%, 30% 0%, 33% 0.5%, 36% 0%, 39% 1%, 42% 0%, 45% 0.5%, 48% 0%, 51% 1.5%, 54% 0%, 57% 0.5%, 60% 0%, 63% 1%, 66% 0%, 69% 1.5%, 72% 0%, 75% 0.5%, 78% 0%, 81% 1%, 84% 0%, 87% 0.5%, 90% 0%, 93% 1%, 96% 0%, 100% 0.5%,
+      100% 98%, 97% 99%, 94% 98.5%, 91% 100%, 88% 99%, 85% 100%, 82% 98.5%, 79% 100%, 76% 99%, 73% 100%, 70% 98.5%, 67% 100%, 64% 99%, 61% 100%, 58% 98.5%, 55% 100%, 52% 99%, 49% 100%, 46% 98.5%, 43% 100%, 40% 99%, 37% 100%, 34% 98.5%, 31% 100%, 28% 99%, 25% 100%, 22% 98.5%, 19% 100%, 16% 99%, 13% 100%, 10% 98.5%, 7% 100%, 4% 99%, 1% 100%, 0% 99%
+    );
+  }
+
+  .message-shadow {
+    box-shadow: 
+      2px 3px 8px hsl(var(--shadow-warm)),
+      0 1px 3px hsl(var(--shadow-warm));
+  }
+
+  .book-shadow {
+    box-shadow:
+      4px 4px 15px hsl(var(--shadow-warm)),
+      -2px -1px 8px hsl(var(--shadow-warm)),
+      inset 0 0 30px hsl(var(--shadow-warm));
+  }
+}
