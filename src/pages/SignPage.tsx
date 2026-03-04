@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { INK_COLORS, FONT_STYLES } from "@/lib/mockData";
-import { BookOpen, Loader2, CheckCircle, Send, ImagePlus, X } from "lucide-react";
+import { BookOpen, Loader2, CheckCircle, Send, ImagePlus, X, Mic, Square } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SignPage = () => {
@@ -18,7 +18,7 @@ const SignPage = () => {
 
   const [senderName, setSenderName] = useState("");
   const [messageContent, setMessageContent] = useState("");
-  const [spotifyUrl, setSpotifyUrl] = useState(""); // Added Spotify state
+  const [spotifyUrl, setSpotifyUrl] = useState(""); 
   const [inkColor, setInkColor] = useState(INK_COLORS[0].value);
   const [fontStyle, setFontStyle] = useState(FONT_STYLES[0].value);
   const [submitting, setSubmitting] = useState(false);
@@ -28,14 +28,21 @@ const SignPage = () => {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Audio record state
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   
   const { toast } = useToast();
 
   // Play a scribble sound effect
   const playScribble = () => {
     const audio = new Audio('/scribble.mp3');
-    audio.volume = 0.3; // Keep it subtle so it's not annoying
-    audio.play().catch(() => {}); // Catch prevents errors if browser blocks autoplay
+    audio.volume = 0.3; 
+    audio.play().catch(() => {}); 
   };
 
   useEffect(() => {
@@ -69,6 +76,46 @@ const SignPage = () => {
     }
   };
 
+  // ---- AUDIO RECORDING LOGIC ----
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      toast({ title: "Microphone Error", description: "Please allow microphone access.", variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const removeAudio = () => {
+    setAudioBlob(null);
+    setAudioUrl(null);
+  };
+  // -------------------------------
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
@@ -76,11 +123,12 @@ const SignPage = () => {
 
     try {
       let finalImageUrl = null;
+      let finalAudioUrl = null;
 
       // 1. Upload Image to Storage if one was selected
       if (image) {
         const fileExt = image.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+        const fileName = `img_${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from('autographs')
@@ -88,15 +136,26 @@ const SignPage = () => {
 
         if (uploadError) throw uploadError;
 
-        // Get the public URL for the uploaded image
-        const { data: { publicUrl } } = supabase.storage
+        finalImageUrl = supabase.storage
           .from('autographs')
-          .getPublicUrl(fileName);
-          
-        finalImageUrl = publicUrl;
+          .getPublicUrl(fileName).data.publicUrl;
       }
 
-      // 2. Save the Message Record with the image URL & Spotify URL
+      // 2. Upload Audio to Storage if recorded
+      if (audioBlob) {
+        const fileName = `audio_${Math.random().toString(36).substring(2)}_${Date.now()}.webm`;
+        const { error: audioError } = await supabase.storage
+          .from('autographs')
+          .upload(fileName, audioBlob);
+          
+        if (audioError) throw audioError;
+        
+        finalAudioUrl = supabase.storage
+          .from('autographs')
+          .getPublicUrl(fileName).data.publicUrl;
+      }
+
+      // 3. Save the Message Record
       const { error } = await supabase.from("messages").insert({
         receiver_id: profile.id,
         sender_name: senderName.trim(),
@@ -104,7 +163,8 @@ const SignPage = () => {
         ink_color: inkColor,
         font_style: fontStyle,
         image_url: finalImageUrl,
-        spotify_url: spotifyUrl.trim() || null, // Added Spotify URL
+        spotify_url: spotifyUrl.trim() || null,
+        audio_url: finalAudioUrl, // Added Audio URL
       });
 
       if (error) throw error;
@@ -202,7 +262,6 @@ const SignPage = () => {
                     value={messageContent}
                     onChange={(e) => {
                       setMessageContent(e.target.value);
-                      // Play sound on roughly every 5th character to avoid overlapping noise
                       if (e.target.value.length % 5 === 0 && e.target.value.length > 0) {
                         playScribble();
                       }
@@ -217,9 +276,13 @@ const SignPage = () => {
                   <p className="text-xs text-muted-foreground mt-1 font-body text-right">
                     {messageContent.length}/500
                   </p>
+                </div>
 
-                  {/* Image Upload Section */}
-                  <div className="mt-4">
+                {/* Media Uploads Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Image Upload */}
+                  <div>
+                    <Label className="font-body text-xs mb-1 block text-muted-foreground">Add Photo (Optional)</Label>
                     <input 
                       type="file" 
                       accept="image/*" 
@@ -231,21 +294,47 @@ const SignPage = () => {
                       <Button 
                         type="button" 
                         variant="outline" 
-                        className="w-full border-dashed border-2 bg-transparent hover:bg-secondary/50 font-body"
+                        className="w-full border-dashed border-2 bg-transparent hover:bg-secondary/50 font-body h-12"
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <ImagePlus className="w-4 h-4 mr-2" />
-                        Attach a Photo (Optional)
+                        Photo
                       </Button>
                     ) : (
-                      <div className="relative inline-block mt-2 bg-white p-2 pb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-2 border-black transform rotate-[-2deg]">
-                        <img src={imagePreview} alt="Preview" className="w-48 h-auto object-cover rounded-sm" />
+                      <div className="relative inline-block w-full bg-white p-1 pb-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 border-black transform rotate-[-1deg]">
+                        <img src={imagePreview} alt="Preview" className="w-full h-16 object-cover rounded-sm border border-gray-200" />
                         <button 
                           type="button"
                           onClick={() => { setImage(null); setImagePreview(null); }}
                           className="absolute -top-3 -right-3 bg-destructive text-white rounded-full p-1 border-2 border-black hover:scale-110 transition-transform"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Audio Upload */}
+                  <div>
+                    <Label className="font-body text-xs mb-1 block text-muted-foreground">Voice Note (Optional)</Label>
+                    {!audioUrl ? (
+                      <Button 
+                        type="button" 
+                        variant={isRecording ? "destructive" : "outline"} 
+                        className={`w-full border-dashed border-2 h-12 ${isRecording ? 'animate-pulse bg-red-100 text-red-600 border-red-500' : 'bg-transparent hover:bg-secondary/50'} font-body`}
+                        onClick={isRecording ? stopRecording : startRecording}
+                      >
+                        {isRecording ? <><Square className="w-4 h-4 mr-2 fill-current" /> Stop</> : <><Mic className="w-4 h-4 mr-2" /> Record</>}
+                      </Button>
+                    ) : (
+                      <div className="relative flex items-center justify-center bg-yellow-100 border-2 border-black p-1 pb-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transform rotate-1 w-full h-[88px]">
+                        <audio src={audioUrl} controls className="w-full h-8 max-w-[150px]" style={{ filter: 'sepia(20%) hue-rotate(10deg) saturate(150%)' }} />
+                        <button 
+                          type="button" 
+                          onClick={removeAudio} 
+                          className="absolute -top-3 -right-3 bg-destructive text-white rounded-full p-1 border-2 border-black hover:scale-110 transition-transform z-10"
+                        >
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
                     )}

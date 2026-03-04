@@ -271,6 +271,7 @@ const Dashboard = () => {
                       createdAt={msg.created_at}
                       imageUrl={(msg as any).image_url}
                       spotifyUrl={(msg as any).spotify_url} // <-- ADD THIS
+                      audioUrl={(msg as any).audio_url} // <-- ADD THIS
                       index={i}
                     />
                   </div>

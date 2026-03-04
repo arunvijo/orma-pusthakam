@@ -25,6 +25,7 @@ export type Database = {
           sender_name: string
           image_url: string | null
           spotify_url?: string | null
+          audio_url?: string | null
         }
         Insert: {
           created_at?: string
@@ -36,6 +37,7 @@ export type Database = {
           sender_name: string
           image_url: string | null
           spotify_url?: string | null
+          audio_url?: string | null
         }
         Update: {
           created_at?: string
@@ -47,6 +49,7 @@ export type Database = {
           sender_name?: string
           image_url: string | null
           spotify_url?: string | null
+          audio_url?: string | null
         }
         Relationships: [
           {

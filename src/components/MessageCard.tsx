@@ -9,6 +9,7 @@ interface MessageCardProps {
   createdAt: string;
   imageUrl?: string | null;
   spotifyUrl?: string | null; // Added Spotify URL prop
+  audioUrl?: string | null; // <-- ADD THIS
   index: number;
 }
 
@@ -43,6 +44,7 @@ const MessageCard = ({
   createdAt,
   imageUrl,
   spotifyUrl, // Destructured
+  audioUrl, // <-- ADD THIS
   index,
 }: MessageCardProps) => {
   const rotation = rotations[index % rotations.length];
@@ -118,6 +120,21 @@ const MessageCard = ({
           "{messageContent}"
         </p>
 
+        {/* Voice Autograph Player */}
+        {audioUrl && (
+          <div className="mt-2 mb-4 bg-yellow-50 border-2 border-[#111] p-2 transform rotate-1 shadow-[2px_2px_0px_rgba(0,0,0,1)] rounded-md no-print">
+            <p className="font-marker text-xs mb-1 ml-1 text-[#111]">🔊 Voice Note from {senderName}</p>
+            <audio 
+              controls 
+              src={audioUrl} 
+              className="w-full h-8"
+              // Filter out default styling to fit the scrapbook theme better
+              style={{ filter: 'sepia(20%) hue-rotate(10deg) saturate(150%)' }}
+            />
+          </div>
+        )}
+        
+
         {/* Signature and date */}
         <div className="mt-auto">
           <p
@@ -151,6 +168,8 @@ const MessageCard = ({
             ></iframe>
           </div>
         )}
+
+        
 
       </div>
     </motion.div>
