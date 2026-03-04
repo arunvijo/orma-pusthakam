@@ -283,3 +283,29 @@
     transform: skewY(-2deg);
   }
 }
+
+
+@media print {
+  /* Force the browser to print background colors and images */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Hide the UI buttons and navigation when printing */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure messages don't get cut in half across pages */
+  .print-break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Create standard A4 pages with padding */
+  .print-page {
+    padding: 2cm !important;
+    background-color: #FDFBF7 !important;
+  }
+}

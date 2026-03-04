@@ -5,10 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 import { MOCK_MESSAGES, type MockMessage } from "@/lib/mockData";
 import MessageCard from "@/components/MessageCard";
 import { Button } from "@/components/ui/button";
-import { Copy, BookOpen, LogOut, Link2, ChevronRight, ChevronLeft, LayoutGrid, BookTemplate } from "lucide-react";
-// @ts-ignore - react-pageflip doesn't have official TS types
+import { Copy, BookOpen, LogOut, Link2, ChevronRight, ChevronLeft, LayoutGrid, BookTemplate, Printer } from "lucide-react";
 import HTMLFlipBook from "react-pageflip";
 import { motion } from "framer-motion";
+import { useReactToPrint } from "react-to-print";
+
+// Bypass strict TypeScript checks for react-pageflip
+const FlipBook = HTMLFlipBook as any;
 
 // Decorative SVG components
 const SquigglyArrow = ({ className = "" }) => (
@@ -51,10 +54,17 @@ const Dashboard = () => {
   const [messages, setMessages] = useState<MockMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [useMock, setUseMock] = useState(false);
-  const [isFlipbookMode, setIsFlipbookMode] = useState(false); // Toggle state
+  const [isFlipbookMode, setIsFlipbookMode] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const bookRef = useRef<any>(null);
+  
+  // PDF Print Setup (Updated for react-to-print v3)
+  const printComponentRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({
+    contentRef: printComponentRef, // Fixed property name
+    documentTitle: profile ? `${profile.full_name}_Autograph_Book` : 'Autograph_Book',
+  });
 
   useEffect(() => {
     const load = async () => {
@@ -121,8 +131,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#FDFBF7]" style={{ borderBottom: '3px solid #111' }}>
+      {/* Header - Hidden during print */}
+      <header className="no-print sticky top-0 z-50 bg-[#FDFBF7]" style={{ borderBottom: '3px solid #111' }}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-3">
             <BookOpen className="w-6 h-6 md:w-7 md:h-7 text-foreground" strokeWidth={2} />
@@ -131,6 +141,17 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            
+            {/* PDF Export Button */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handlePrint()} 
+              className="font-marker font-bold border-2 border-[#111] hover:bg-gray-200 hidden sm:flex"
+            >
+              <Printer className="w-4 h-4 mr-1.5" /> PDF
+            </Button>
+
             {/* View Toggle Button */}
             <Button 
               variant="outline" 
@@ -155,18 +176,31 @@ const Dashboard = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center justify-center py-6 md:py-12 px-2 md:px-4 overflow-hidden relative w-full">
         
-        {!isFlipbookMode ? (
-          /* =========================================
-             GRID VIEW (DEFAULT)
-             ========================================= */
-          <div className="w-full max-w-6xl mx-auto">
-            <SquigglyArrow className="absolute top-10 right-10 w-32 h-12 opacity-60 hidden md:block" />
-            <HandDrawnCircle className="absolute top-40 left-5 w-24 h-24 opacity-40 hidden lg:block" />
+        {/* THIS WRAPPER IS WHAT GETS PRINTED TO PDF */}
+        <div ref={printComponentRef} className="w-full print-page">
+          
+          {/* TITLE FOR PRINT VIEW ONLY (Visible only in PDF) */}
+          <div className="hidden print:block text-center mb-16 pt-10">
+            <h1 className="font-marker text-6xl font-bold text-foreground mb-4">
+              {profile?.full_name}'s Memories
+            </h1>
+            <p className="font-typewriter text-xl text-foreground">
+              Class of 2026 Autograph Book
+            </p>
+          </div>
+
+          {/* =========================================
+              GRID VIEW 
+              (Always printed. Hidden on screen if flipbook is active)
+              ========================================= */}
+          <div className={`w-full max-w-6xl mx-auto ${isFlipbookMode ? 'hidden print:block' : 'block'}`}>
+            <SquigglyArrow className="no-print absolute top-10 right-10 w-32 h-12 opacity-60 hidden md:block" />
+            <HandDrawnCircle className="no-print absolute top-40 left-5 w-24 h-24 opacity-40 hidden lg:block" />
 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-10 relative z-10"
+              className="no-print text-center mb-10 relative z-10"
             >
               <h1 className="font-marker text-4xl md:text-5xl font-bold text-foreground mb-2" style={{ letterSpacing: '1px' }}>
                 {profile?.full_name}'s Memories
@@ -183,12 +217,12 @@ const Dashboard = () => {
               )}
             </motion.div>
 
-            {/* Share link card with scrapbook style */}
+            {/* Share link card (Hidden in Print) */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="bg-white p-6 mb-10 text-center max-w-lg mx-auto relative"
+              className="no-print bg-white p-6 mb-10 text-center max-w-lg mx-auto relative"
               style={{ 
                 border: '3px solid #111',
                 boxShadow: '5px 5px 0px rgba(0,0,0,0.2)'
@@ -220,10 +254,11 @@ const Dashboard = () => {
 
             {/* Messages grid */}
             <div className="relative" style={{ minHeight: '400px' }}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 auto-rows-max">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 auto-rows-max print:grid-cols-2 print:gap-10">
                 {messages.map((msg, i) => (
                   <div 
                     key={msg.id}
+                    className="print-break-inside-avoid"
                     style={{
                       transform: i % 2 === 0 ? 'translateY(-10px)' : 'translateY(10px)'
                     }}
@@ -243,7 +278,7 @@ const Dashboard = () => {
             </div>
 
             {messages.length === 0 && !useMock && (
-              <div className="text-center py-20">
+              <div className="no-print text-center py-20">
                 <BookOpen className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
                 <p className="font-marker text-xl text-muted-foreground">
                   Your book is empty
@@ -254,13 +289,16 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        ) : (
-          /* =========================================
-             FLIPBOOK VIEW 
-             ========================================= */
-          <>
+        </div>
+
+        {/* =========================================
+            FLIPBOOK VIEW 
+            (Only rendered on screen if active, NEVER printed)
+            ========================================= */}
+        {isFlipbookMode && (
+          <div className="no-print w-full flex flex-col items-center">
             <div className="relative w-full max-w-4xl mx-auto flex justify-center drop-shadow-[10px_10px_15px_rgba(0,0,0,0.3)]">
-              <HTMLFlipBook
+              <FlipBook
                 width={400}
                 height={600}
                 size="stretch"
@@ -303,11 +341,6 @@ const Dashboard = () => {
                       <Button onClick={copyLink} className="w-full font-marker font-bold bg-yellow-300 text-black border-2 border-[#111] hover:bg-yellow-400 hover:-translate-y-1 transition-transform">
                         <Copy className="w-4 h-4 mr-2" /> Copy Link
                       </Button>
-                      {useMock && (
-                        <p className="mt-4 font-caveat text-red-600 font-bold text-lg leading-tight">
-                          *These are currently sample messages. Share the link to get real ones!
-                        </p>
-                      )}
                     </div>
                   </div>
                 </Page>
@@ -348,7 +381,7 @@ const Dashboard = () => {
                   </div>
                 </Page>
                 
-              </HTMLFlipBook>
+              </FlipBook>
             </div>
 
             {/* Desktop Book Navigation Controls */}
@@ -360,7 +393,7 @@ const Dashboard = () => {
                 Next Page <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>
