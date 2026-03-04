@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Caveat:wght@400;500;600;700&family=Shadows+Into+Light&family=Kalam:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Gochi+Hand&family=Caveat:wght@400;500;600;700&family=Homemade+Apple&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,54 +8,56 @@
 
 @layer base {
   :root {
-    --background: 40 30% 98%;
-    --foreground: 225 40% 20%;
+    --background: 0 0% 99.2%;
+    --foreground: 0 0% 6.6%;
 
-    --card: 40 30% 96%;
-    --card-foreground: 225 40% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 6.6%;
 
-    --popover: 40 30% 98%;
-    --popover-foreground: 225 40% 20%;
+    --popover: 0 0% 99.2%;
+    --popover-foreground: 0 0% 6.6%;
 
-    --primary: 0 70% 35%;
-    --primary-foreground: 40 30% 98%;
+    --primary: 0 0% 6.6%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 50 85% 60%;
-    --secondary-foreground: 225 40% 20%;
+    --secondary: 45 100% 60%;
+    --secondary-foreground: 0 0% 6.6%;
 
-    --muted: 40 20% 88%;
-    --muted-foreground: 225 15% 45%;
+    --muted: 0 0% 80%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 0 70% 35%;
-    --accent-foreground: 40 30% 98%;
+    --accent: 210 80% 55%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 40 20% 85%;
-    --input: 40 20% 85%;
-    --ring: 0 70% 35%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 6.6%;
 
-    --radius: 0.5rem;
+    --radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 
-    --sidebar-background: 40 30% 96%;
-    --sidebar-foreground: 225 40% 20%;
-    --sidebar-primary: 0 70% 35%;
-    --sidebar-primary-foreground: 40 30% 98%;
-    --sidebar-accent: 50 85% 60%;
-    --sidebar-accent-foreground: 225 40% 20%;
-    --sidebar-border: 40 20% 85%;
-    --sidebar-ring: 0 70% 35%;
+    --sidebar-background: 0 0% 99.2%;
+    --sidebar-foreground: 0 0% 6.6%;
+    --sidebar-primary: 0 0% 6.6%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 100% 60%;
+    --sidebar-accent-foreground: 0 0% 6.6%;
+    --sidebar-border: 0 0% 85%;
+    --sidebar-ring: 0 0% 6.6%;
 
     /* Custom tokens */
-    --paper: 40 30% 98%;
-    --paper-aged: 40 25% 94%;
-    --ink-blue: 225 40% 25%;
-    --ink-black: 225 15% 18%;
-    --ink-red: 0 70% 35%;
-    --tape: 50 85% 60%;
-    --pin-red: 0 70% 35%;
-    --shadow-warm: 0 0% 0% / 0.1;
+    --paper: 0 0% 99.2%;
+    --paper-card: 0 0% 100%;
+    --ink-black: 0 0% 6.6%;
+    --ink-blue: 210 80% 35%;
+    --ink-red: 0 80% 50%;
+    --washi-yellow: rgba(252, 211, 77, 0.7);
+    --washi-blue: rgba(147, 197, 253, 0.7);
+    --washi-pink: rgba(249, 168, 212, 0.7);
+    --marker-black: #111111;
+    --shadow-black: 0 0% 0% / 0.15;
   }
 
   .dark {
@@ -100,73 +102,184 @@
 }
 
 @layer utilities {
+  .font-marker {
+    font-family: 'Permanent Marker', cursive;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  .font-hand {
+    font-family: 'Gochi Hand', cursive;
+    font-weight: 400;
+  }
+
   .font-display {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Permanent Marker', cursive;
+    font-weight: 400;
+    letter-spacing: 1px;
   }
 
   .font-body {
-    font-family: 'Lora', serif;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 400;
+    letter-spacing: 0.3px;
   }
 
   .font-caveat {
     font-family: 'Caveat', cursive;
+    font-weight: 600;
   }
 
-  .font-shadows {
-    font-family: 'Shadows Into Light', cursive;
+  .font-script {
+    font-family: 'Homemade Apple', cursive;
+    font-weight: 400;
   }
 
-  .font-kalam {
-    font-family: 'Kalam', cursive;
+  .font-typewriter {
+    font-family: 'Special Elite', cursive;
+    font-weight: 400;
   }
 
   .paper-texture {
+    background-color: hsl(var(--paper));
+    position: relative;
+  }
+
+  .paper-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     background-image: 
-      radial-gradient(ellipse at 20% 50%, hsl(var(--paper)) 0%, transparent 70%),
-      radial-gradient(ellipse at 80% 50%, hsl(var(--paper-aged)) 0%, transparent 70%),
-      linear-gradient(180deg, hsl(var(--paper)) 0%, hsl(var(--paper-aged)) 100%);
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.02) 2px,
+        rgba(0, 0, 0, 0.02) 4px
+      );
+    pointer-events: none;
   }
 
-  .torn-edge {
-    clip-path: polygon(
-      0% 0%, 3% 1%, 6% 0%, 9% 1.5%, 12% 0%, 15% 0.5%, 18% 0%, 21% 1%, 24% 0%, 27% 1.5%, 30% 0%, 33% 0.5%, 36% 0%, 39% 1%, 42% 0%, 45% 0.5%, 48% 0%, 51% 1.5%, 54% 0%, 57% 0.5%, 60% 0%, 63% 1%, 66% 0%, 69% 1.5%, 72% 0%, 75% 0.5%, 78% 0%, 81% 1%, 84% 0%, 87% 0.5%, 90% 0%, 93% 1%, 96% 0%, 100% 0.5%,
-      100% 98%, 97% 99%, 94% 98.5%, 91% 100%, 88% 99%, 85% 100%, 82% 98.5%, 79% 100%, 76% 99%, 73% 100%, 70% 98.5%, 67% 100%, 64% 99%, 61% 100%, 58% 98.5%, 55% 100%, 52% 99%, 49% 100%, 46% 98.5%, 43% 100%, 40% 99%, 37% 100%, 34% 98.5%, 31% 100%, 28% 99%, 25% 100%, 22% 98.5%, 19% 100%, 16% 99%, 13% 100%, 10% 98.5%, 7% 100%, 4% 99%, 1% 100%, 0% 99%
-    );
+  .hand-drawn-border {
+    border: 2px solid var(--marker-black);
+    border-radius: var(--radius);
   }
 
-  .message-shadow {
+  .construction-paper {
+    border: 3px solid var(--marker-black);
+    box-shadow: 4px 4px 0px 0px var(--marker-black);
+    border-radius: 0;
+  }
+
+  .washi-tape-corner {
+    position: relative;
+  }
+
+  .washi-tape-corner::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 15px;
+    width: 50px;
+    height: 25px;
+    background: var(--washi-yellow);
+    transform: rotate(-15deg);
     box-shadow: 
-      2px 3px 8px hsl(var(--shadow-warm)),
-      0 1px 3px hsl(var(--shadow-warm));
+      inset 0 2px 4px rgba(0, 0, 0, 0.1),
+      0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
   }
 
-  .book-shadow {
-    box-shadow:
-      4px 4px 15px hsl(var(--shadow-warm)),
-      -2px -1px 8px hsl(var(--shadow-warm)),
-      inset 0 0 30px hsl(var(--shadow-warm));
+  .washi-tape-corner::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 15px;
+    width: 50px;
+    height: 25px;
+    background: var(--washi-blue);
+    transform: rotate(15deg);
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.1),
+      0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
   }
 
-  .polaroid {
-    @apply bg-white border-8 border-white rounded-sm;
-    box-shadow: 0 4px 15px hsl(var(--shadow-warm));
+  .scrapbook-shadow {
+    box-shadow: 4px 4px 0px 0px var(--marker-black);
   }
 
-  .masking-tape {
-    @apply absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-300 opacity-70;
-    width: 60px;
-    height: 20px;
-    transform: translateX(-50%) rotate(-5deg);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  .marker-shadow {
+    box-shadow: 3px 3px 0px 0px var(--marker-black);
+  }
+
+  .soft-shadow {
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .polaroid-card {
+    @apply bg-white p-2;
+    border: 2px solid var(--marker-black);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .hand-drawn-arrow {
+    position: relative;
+    display: inline-block;
+  }
+
+  .construction-button {
+    @apply font-marker font-bold uppercase;
+    border: 3px solid var(--marker-black);
+    background: hsl(var(--secondary));
+    padding: 10px 20px;
+    box-shadow: 3px 3px 0px var(--marker-black);
+    transition: all 0.1s;
+  }
+
+  .construction-button:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px var(--marker-black);
   }
 
   .sticky-note {
-    @apply bg-yellow-50 rounded-lg p-4 message-shadow;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: hsl(45 100% 85%);
+    border: 2px solid var(--marker-black);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .sticky-cta {
-    @apply fixed bottom-0 left-0 right-0 md:hidden bg-white border-t border-border p-4 z-50;
-    box-shadow: 0 -4px 12px hsl(var(--shadow-warm));
+  .squiggly-circle {
+    position: absolute;
+    border: 3px solid var(--marker-black);
+    border-radius: 50%;
+    animation: squiggle 0.5s ease-out;
+  }
+
+  @keyframes squiggle {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .marker-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .marker-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: currentColor;
+    opacity: 0.6;
+    transform: skewY(-2deg);
   }
 }
