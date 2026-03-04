@@ -107,10 +107,10 @@ const Dashboard = () => {
           className="text-center mb-10"
         >
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-            RSET CSE Memories
+            {profile?.full_name}'s Rajagiri Memories
           </h1>
           <p className="font-body text-muted-foreground">
-            {profile?.full_name}'s Autograph Book
+            Class of 2026 Autograph Book
           </p>
 
           {useMock && (
@@ -157,7 +157,7 @@ const Dashboard = () => {
 
         {messages.length === 0 && !useMock && (
           <div className="text-center py-20">
-            <BookOpen className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <BookOpen className="w-16 h-16 text-muted-foregrounRSETd/30 mx-auto mb-4" />
             <p className="font-display text-xl text-muted-foreground">
               Your book is empty
             </p>

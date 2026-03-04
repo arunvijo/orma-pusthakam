@@ -24,6 +24,13 @@ const SignPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
+  // Play a scribble sound effect
+  const playScribble = () => {
+    const audio = new Audio('/scribble.mp3');
+    audio.volume = 0.3; // Keep it subtle so it's not annoying
+    audio.play().catch(() => {}); // Catch prevents errors if browser blocks autoplay
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       if (!username) { setNotFound(true); setLoading(false); return; }
@@ -150,7 +157,13 @@ const SignPage = () => {
                   <Textarea
                     id="message"
                     value={messageContent}
-                    onChange={(e) => setMessageContent(e.target.value)}
+                    onChange={(e) => {
+                      setMessageContent(e.target.value);
+                      // Play sound on roughly every 5th character to avoid overlapping noise
+                      if (e.target.value.length % 5 === 0 && e.target.value.length > 0) {
+                        playScribble();
+                      }
+                    }}
                     placeholder="Write something memorable..."
                     required
                     maxLength={500}
