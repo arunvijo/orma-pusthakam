@@ -18,6 +18,7 @@ const SignPage = () => {
 
   const [senderName, setSenderName] = useState("");
   const [messageContent, setMessageContent] = useState("");
+  const [spotifyUrl, setSpotifyUrl] = useState(""); // Added Spotify state
   const [inkColor, setInkColor] = useState(INK_COLORS[0].value);
   const [fontStyle, setFontStyle] = useState(FONT_STYLES[0].value);
   const [submitting, setSubmitting] = useState(false);
@@ -95,7 +96,7 @@ const SignPage = () => {
         finalImageUrl = publicUrl;
       }
 
-      // 2. Save the Message Record with the image URL
+      // 2. Save the Message Record with the image URL & Spotify URL
       const { error } = await supabase.from("messages").insert({
         receiver_id: profile.id,
         sender_name: senderName.trim(),
@@ -103,6 +104,7 @@ const SignPage = () => {
         ink_color: inkColor,
         font_style: fontStyle,
         image_url: finalImageUrl,
+        spotify_url: spotifyUrl.trim() || null, // Added Spotify URL
       });
 
       if (error) throw error;
@@ -248,6 +250,21 @@ const SignPage = () => {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Spotify URL Section */}
+                <div>
+                  <Label htmlFor="spotifyUrl" className="font-body">Dedicate a Song (Optional)</Label>
+                  <Input
+                    id="spotifyUrl"
+                    value={spotifyUrl}
+                    onChange={(e) => setSpotifyUrl(e.target.value)}
+                    placeholder="Paste a Spotify track link here..."
+                    className="mt-1 font-typewriter text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 font-typewriter">
+                    E.g., https://open.spotify.com/track/...
+                  </p>
                 </div>
 
                 {/* Ink Color */}

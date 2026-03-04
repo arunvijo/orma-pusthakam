@@ -7,7 +7,8 @@ interface MessageCardProps {
   inkColor: string;
   fontStyle: string;
   createdAt: string;
-  imageUrl?: string | null; // Added polaroid image URL prop
+  imageUrl?: string | null;
+  spotifyUrl?: string | null; // Added Spotify URL prop
   index: number;
 }
 
@@ -19,18 +20,36 @@ const fontMap: Record<string, string> = {
 
 const rotations = [-2, 1.5, -1, 2, -1.5, 0.8, -0.5, 1.8];
 
+// Helper to convert a standard Spotify share link into an embeddable widget link
+const getSpotifyEmbedUrl = (url: string) => {
+  if (!url) return null;
+  try {
+    if (url.includes('spotify.com/')) {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname; // e.g., /track/123456
+      return `https://open.spotify.com/embed${pathname}?utm_source=generator`;
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+};
+
 const MessageCard = ({
   senderName,
   messageContent,
   inkColor,
   fontStyle,
   createdAt,
-  imageUrl, // Destructured
+  imageUrl,
+  spotifyUrl, // Destructured
   index,
 }: MessageCardProps) => {
   const rotation = rotations[index % rotations.length];
   const fontClass = fontMap[fontStyle] || "font-caveat";
   const tapeColor = ["var(--washi-yellow)", "var(--washi-blue)", "var(--washi-pink)"][index % 3];
+
+  const embedUrl = spotifyUrl ? getSpotifyEmbedUrl(spotifyUrl) : null;
 
   return (
     <motion.div
@@ -67,7 +86,7 @@ const MessageCard = ({
           borderRadius: '8px'
         }}
       >
-        {/* Added Polaroid Image Render */}
+        {/* Polaroid Image Render */}
         {imageUrl && (
           <div 
             className="mb-4 bg-white p-2 pb-6 self-center w-full max-w-[240px] relative"
@@ -111,6 +130,28 @@ const MessageCard = ({
             {format(new Date(createdAt), "MMM d, yyyy")}
           </span>
         </div>
+
+        {/* Spotify Mini Player */}
+        {embedUrl && (
+          <div className="mt-4 pt-4 relative no-print" style={{ borderTop: '2px dashed #111' }}>
+            {/* Tape holding the player */}
+            <div 
+              className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 z-10" 
+              style={{ background: 'var(--washi-pink, rgba(244, 114, 182, 0.7))', transform: 'rotate(2deg)' }} 
+            />
+            <iframe 
+              style={{ borderRadius: '12px', border: '2px solid #111' }} 
+              src={embedUrl} 
+              width="100%" 
+              height="80" 
+              frameBorder="0" 
+              allowFullScreen 
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy"
+            ></iframe>
+          </div>
+        )}
+
       </div>
     </motion.div>
   );

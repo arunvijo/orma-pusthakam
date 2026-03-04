@@ -270,6 +270,7 @@ const Dashboard = () => {
                       fontStyle={msg.font_style}
                       createdAt={msg.created_at}
                       imageUrl={(msg as any).image_url}
+                      spotifyUrl={(msg as any).spotify_url} // <-- ADD THIS
                       index={i}
                     />
                   </div>
