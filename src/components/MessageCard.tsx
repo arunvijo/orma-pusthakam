@@ -7,6 +7,7 @@ interface MessageCardProps {
   inkColor: string;
   fontStyle: string;
   createdAt: string;
+  imageUrl?: string | null; // Added polaroid image URL prop
   index: number;
 }
 
@@ -24,6 +25,7 @@ const MessageCard = ({
   inkColor,
   fontStyle,
   createdAt,
+  imageUrl, // Destructured
   index,
 }: MessageCardProps) => {
   const rotation = rotations[index % rotations.length];
@@ -65,6 +67,30 @@ const MessageCard = ({
           borderRadius: '8px'
         }}
       >
+        {/* Added Polaroid Image Render */}
+        {imageUrl && (
+          <div 
+            className="mb-4 bg-white p-2 pb-6 self-center w-full max-w-[240px] relative"
+            style={{ 
+              border: '2px solid #111', 
+              transform: 'rotate(-2deg)',
+              boxShadow: '2px 2px 0px rgba(0,0,0,0.25)'
+            }}
+          >
+            <img 
+              src={imageUrl} 
+              alt={`From ${senderName}`} 
+              className="w-full h-auto object-cover aspect-square border-2 border-[#111]"
+              loading="lazy"
+            />
+            {/* Mini tape for the inner photo */}
+            <div 
+              className="absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-3 shadow-sm z-10" 
+              style={{ background: tapeColor, opacity: 0.7, transform: 'rotate(4deg)' }}
+            />
+          </div>
+        )}
+
         {/* Message content */}
         <p
           className={`${fontClass} text-base md:text-lg leading-relaxed mb-4 text-lg`}

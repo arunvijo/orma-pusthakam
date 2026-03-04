@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { INK_COLORS, FONT_STYLES } from "@/lib/mockData";
-import { BookOpen, Loader2, CheckCircle, Send } from "lucide-react";
+import { BookOpen, Loader2, CheckCircle, Send, ImagePlus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SignPage = () => {
@@ -22,6 +22,12 @@ const SignPage = () => {
   const [fontStyle, setFontStyle] = useState(FONT_STYLES[0].value);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  
+  // Image upload state
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const { toast } = useToast();
 
   // Play a scribble sound effect
@@ -50,18 +56,53 @@ const SignPage = () => {
     fetchProfile();
   }, [username]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "Too big!", description: "Image must be under 5MB.", variant: "destructive" });
+        return;
+      }
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
     setSubmitting(true);
 
     try {
+      let finalImageUrl = null;
+
+      // 1. Upload Image to Storage if one was selected
+      if (image) {
+        const fileExt = image.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('autographs')
+          .upload(fileName, image);
+
+        if (uploadError) throw uploadError;
+
+        // Get the public URL for the uploaded image
+        const { data: { publicUrl } } = supabase.storage
+          .from('autographs')
+          .getPublicUrl(fileName);
+          
+        finalImageUrl = publicUrl;
+      }
+
+      // 2. Save the Message Record with the image URL
       const { error } = await supabase.from("messages").insert({
         receiver_id: profile.id,
         sender_name: senderName.trim(),
         message_content: messageContent.trim(),
         ink_color: inkColor,
         font_style: fontStyle,
+        image_url: finalImageUrl,
       });
 
       if (error) throw error;
@@ -174,6 +215,39 @@ const SignPage = () => {
                   <p className="text-xs text-muted-foreground mt-1 font-body text-right">
                     {messageContent.length}/500
                   </p>
+
+                  {/* Image Upload Section */}
+                  <div className="mt-4">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                    />
+                    {!imagePreview ? (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="w-full border-dashed border-2 bg-transparent hover:bg-secondary/50 font-body"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <ImagePlus className="w-4 h-4 mr-2" />
+                        Attach a Photo (Optional)
+                      </Button>
+                    ) : (
+                      <div className="relative inline-block mt-2 bg-white p-2 pb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-2 border-black transform rotate-[-2deg]">
+                        <img src={imagePreview} alt="Preview" className="w-48 h-auto object-cover rounded-sm" />
+                        <button 
+                          type="button"
+                          onClick={() => { setImage(null); setImagePreview(null); }}
+                          className="absolute -top-3 -right-3 bg-destructive text-white rounded-full p-1 border-2 border-black hover:scale-110 transition-transform"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Ink Color */}

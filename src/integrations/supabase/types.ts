@@ -23,6 +23,7 @@ export type Database = {
           message_content: string
           receiver_id: string
           sender_name: string
+          image_url: string | null
         }
         Insert: {
           created_at?: string
@@ -32,6 +33,7 @@ export type Database = {
           message_content: string
           receiver_id: string
           sender_name: string
+          image_url: string | null
         }
         Update: {
           created_at?: string
@@ -41,6 +43,7 @@ export type Database = {
           message_content?: string
           receiver_id?: string
           sender_name?: string
+          image_url: string | null
         }
         Relationships: [
           {
